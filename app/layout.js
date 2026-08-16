@@ -5,9 +5,15 @@ import Footer from './components/Footer'
 
 export const metadata = {
   title: 'chachapride - Go anywhere',
-  description: 'Request a ride, get affordable options instantly',
+  description: 'Safe, affordable ride-hailing in Kenya — book, pay, and track your driver in real time.',
   icons: {
     icon: '/favicon.ico',
+  },
+  openGraph: {
+    title: 'chachapride - Go anywhere',
+    description: 'Safe, affordable ride-hailing in Kenya — book, pay, and track your driver in real time.',
+    type: 'website',
+    siteName: 'chachapride',
   },
 }
 

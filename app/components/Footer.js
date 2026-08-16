@@ -28,6 +28,16 @@ export default function Footer() {
                   Contact us
                 </Link>
               </li>
+              <li>
+                <Link href="/safety" className="hover:text-white transition">
+                  Safety
+                </Link>
+              </li>
+              <li>
+                <Link href="/drive-with-us" className="hover:text-white transition">
+                  Drive with us
+                </Link>
+              </li>
             </ul>
           </div>
 

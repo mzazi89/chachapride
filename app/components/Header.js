@@ -34,17 +34,20 @@ export default function Header() {
             <Link href="/history" className="text-sm font-medium hover:text-gray-600 transition">
               History
             </Link>
-            <a href="#" className="text-sm font-medium hover:text-gray-600 transition">
+            <Link href="/business" className="text-sm font-medium hover:text-gray-600 transition">
               Business
-            </a>
+            </Link>
 
             {loading ? (
               <FaSpinner className="animate-spin text-gray-400" />
             ) : user ? (
               <>
-                <span className="text-sm font-semibold text-gray-800">
+                <Link
+                  href="/profile"
+                  className="text-sm font-semibold text-gray-800 hover:text-gray-600 transition"
+                >
                   Hi, {user.name.split(' ')[0]}
-                </span>
+                </Link>
                 <button
                   onClick={handleLogout}
                   className="px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 transition text-sm font-medium"
@@ -87,7 +90,7 @@ export default function Header() {
             <div className="flex flex-col space-y-3">
               <Link href="/" className="text-sm font-medium hover:text-gray-600">Ride</Link>
               <Link href="/history" className="text-sm font-medium hover:text-gray-600">History</Link>
-              <a href="#" className="text-sm font-medium hover:text-gray-600">Business</a>
+              <Link href="/business" className="text-sm font-medium hover:text-gray-600">Business</Link>
 
               {loading ? (
                 <FaSpinner className="animate-spin text-gray-400" />
