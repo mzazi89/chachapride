@@ -1,11 +1,10 @@
 'use client';
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { FaSpinner, FaCheckCircle } from 'react-icons/fa';
+import { FaSpinner } from 'react-icons/fa';
 import RideCard from './RideCard';
 import { useRide } from '../context/RideContext';
 
-export default function RideOptions() {
+export default function RideOptions({ onConfirmed }) {
   const {
     pickup,
     destination,
@@ -19,7 +18,6 @@ export default function RideOptions() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [confirming, setConfirming] = useState(false);
-  const [confirmedRide, setConfirmedRide] = useState(null);
   const [confirmError, setConfirmError] = useState('');
 
   useEffect(() => {
@@ -74,36 +72,13 @@ export default function RideOptions() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to confirm ride');
-      setConfirmedRide(data.ride);
+      onConfirmed(data.ride.id);
     } catch (err) {
       setConfirmError(err.message);
     } finally {
       setConfirming(false);
     }
   };
-
-  if (confirmedRide) {
-    return (
-      <div className="uber-card">
-        <div className="text-center py-6">
-          <FaCheckCircle className="text-5xl text-green-500 mx-auto mb-4" />
-          <h3 className="text-2xl font-bold mb-1">Ride confirmed!</h3>
-          <p className="text-gray-500 mb-4">
-            {confirmedRide.ride_type} · ${Number(confirmedRide.price).toFixed(2)}
-          </p>
-          <p className="text-sm text-gray-400 mb-6">
-            {confirmedRide.pickup} → {confirmedRide.destination}
-          </p>
-          <Link
-            href="/history"
-            className="inline-block px-6 py-3 rounded-full bg-black text-white font-semibold hover:bg-gray-800 transition"
-          >
-            View my rides
-          </Link>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="uber-card">

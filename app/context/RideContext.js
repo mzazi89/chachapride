@@ -9,6 +9,7 @@ export function RideProvider({ children }) {
   const [destination, setDestination] = useState('');
   const [destinationCoords, setDestinationCoords] = useState(null);
   const [selectedRide, setSelectedRide] = useState(null);
+  const [userLocation, setUserLocation] = useState(null);
 
   const value = {
     pickup,
@@ -17,6 +18,8 @@ export function RideProvider({ children }) {
     destinationCoords,
     selectedRide,
     setSelectedRide,
+    userLocation,
+    setUserLocation,
     setPickup: (text, coords) => {
       setPickup(text);
       setPickupCoords(coords ?? null);

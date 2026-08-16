@@ -1,14 +1,12 @@
 import { NextResponse } from 'next/server';
 import pool from '../../../lib/db';
-import { getSessionUser } from '../../../lib/auth';
+import { guardRole } from '../../../lib/guard';
 import { RIDE_TYPES, getRideType } from '../../../lib/ride-types';
 import { haversineKm, estimatePrice } from '../../../lib/pricing';
 
 export async function GET(request) {
-  const user = await getSessionUser();
-  if (!user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
+  const { user, response } = await guardRole('rider');
+  if (response) return response;
 
   try {
     const { searchParams } = new URL(request.url);
@@ -34,10 +32,8 @@ export async function GET(request) {
 }
 
 export async function POST(request) {
-  const user = await getSessionUser();
-  if (!user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
+  const { user, response } = await guardRole('rider');
+  if (response) return response;
 
   let body;
   try {
@@ -69,7 +65,7 @@ export async function POST(request) {
   try {
     const { rows } = await pool.query(
       `INSERT INTO rides (user_id, pickup, destination, pickup_lat, pickup_lng, destination_lat, destination_lng, ride_type, price, status)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'confirmed')
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'requested')
        RETURNING id, pickup, destination, ride_type, price, status, created_at`,
       [user.id, pickup, destination, pickupLat, pickupLng, destinationLat, destinationLng, rideType.id, price]
     );

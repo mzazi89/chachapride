@@ -20,7 +20,7 @@ export async function POST(request) {
 
   try {
     const { rows } = await pool.query(
-      'SELECT id, name, email, password_hash, created_at FROM users WHERE email = $1',
+      'SELECT id, name, email, password_hash, role, created_at FROM users WHERE email = $1',
       [email]
     );
     const user = rows[0];
@@ -35,7 +35,7 @@ export async function POST(request) {
 
     await createSession(user.id);
     return NextResponse.json({
-      user: { id: user.id, name: user.name, email: user.email, created_at: user.created_at },
+      user: { id: user.id, name: user.name, email: user.email, role: user.role, created_at: user.created_at },
     });
   } catch (err) {
     console.error('[login] database error:', err.message);

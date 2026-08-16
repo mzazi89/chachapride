@@ -27,21 +27,34 @@ const destinationIcon = L.divIcon({
   iconAnchor: [9, 9],
 });
 
-function RouteLayer() {
-  const { pickupCoords, destinationCoords } = useRide();
+const driverIcon = L.divIcon({
+  className: '',
+  html: '<div style="width:26px;height:26px;background:#2563eb;border:3px solid #fff;border-radius:8px 8px 8px 2px;transform:rotate(-45deg);box-shadow:0 2px 6px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center"><span style="transform:rotate(45deg);font-size:13px">🚗</span></div>',
+  iconSize: [26, 26],
+  iconAnchor: [13, 22],
+});
+
+const userIcon = L.divIcon({
+  className: '',
+  html: '<div style="width:14px;height:14px;background:#3b82f6;border:3px solid #fff;border-radius:50%;box-shadow:0 0 0 6px rgba(59,130,246,.25)"></div>',
+  iconSize: [14, 14],
+  iconAnchor: [7, 7],
+});
+
+function RouteLayer({ from, to }) {
   const [route, setRoute] = useState(null);
   const map = useMap();
 
   useEffect(() => {
     let cancelled = false;
-    if (!pickupCoords || !destinationCoords) {
+    if (!from || !to) {
       setRoute(null);
       return;
     }
 
     const url =
       `https://router.project-osrm.org/route/v1/driving/` +
-      `${pickupCoords.lng},${pickupCoords.lat};${destinationCoords.lng},${destinationCoords.lat}` +
+      `${from.lng},${from.lat};${to.lng},${to.lat}` +
       `?overview=full&geometries=geojson`;
 
     fetch(url)
@@ -57,7 +70,7 @@ function RouteLayer() {
     return () => {
       cancelled = true;
     };
-  }, [pickupCoords, destinationCoords, map]);
+  }, [from, to, map]);
 
   if (!route) return null;
   return (
@@ -85,8 +98,21 @@ function ClickHandler() {
   return null;
 }
 
-export default function Map() {
-  const { pickupCoords, destinationCoords } = useRide();
+/**
+ * Interactive map. Reads pickup/destination from RideContext by default;
+ * caller can override via props (used by the live trip tracker).
+ */
+export default function Map({
+  pickupCoords: pOverride,
+  destinationCoords: dOverride,
+  driverLocation = null,
+  showUser = true,
+  interactive = true,
+}) {
+  const ctx = useRide();
+  const pickupCoords = pOverride ?? ctx.pickupCoords;
+  const destinationCoords = dOverride ?? ctx.destinationCoords;
+  const { userLocation } = ctx;
 
   return (
     <MapContainer
@@ -105,8 +131,14 @@ export default function Map() {
       {destinationCoords && (
         <Marker position={[destinationCoords.lat, destinationCoords.lng]} icon={destinationIcon} />
       )}
-      <RouteLayer />
-      <ClickHandler />
+      {driverLocation && (
+        <Marker position={[driverLocation.lat, driverLocation.lng]} icon={driverIcon} />
+      )}
+      {showUser && userLocation && (
+        <Marker position={[userLocation.lat, userLocation.lng]} icon={userIcon} />
+      )}
+      <RouteLayer from={pickupCoords} to={destinationCoords} />
+      {interactive && <ClickHandler />}
     </MapContainer>
   );
 }
