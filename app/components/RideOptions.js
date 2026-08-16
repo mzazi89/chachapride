@@ -1,10 +1,10 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { FaSpinner } from 'react-icons/fa';
+import { FaSpinner, FaCreditCard, FaTimesCircle } from 'react-icons/fa';
 import RideCard from './RideCard';
 import { useRide } from '../context/RideContext';
 
-export default function RideOptions({ onConfirmed }) {
+export default function RideOptions() {
   const {
     pickup,
     destination,
@@ -18,6 +18,9 @@ export default function RideOptions({ onConfirmed }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [confirming, setConfirming] = useState(false);
+  const [pendingRide, setPendingRide] = useState(null);
+  const [paying, setPaying] = useState(false);
+  const [payError, setPayError] = useState('');
   const [confirmError, setConfirmError] = useState('');
 
   useEffect(() => {
@@ -72,13 +75,100 @@ export default function RideOptions({ onConfirmed }) {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to confirm ride');
-      onConfirmed(data.ride.id);
+      setPendingRide(data.ride);
     } catch (err) {
       setConfirmError(err.message);
     } finally {
       setConfirming(false);
     }
   };
+
+  const handlePay = async () => {
+    setPaying(true);
+    setPayError('');
+    try {
+      const res = await fetch('/api/payments/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rideId: pendingRide.id }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Could not start payment');
+      window.location.href = data.url;
+    } catch (err) {
+      setPayError(err.message);
+      setPaying(false);
+    }
+  };
+
+  const handleCancel = async () => {
+    setConfirming(true);
+    try {
+      await fetch(`/api/rides/${pendingRide.id}/cancel`, { method: 'POST' });
+      setPendingRide(null);
+      setSelectedRide(null);
+    } catch {
+      // ignore — refresh clears it
+    } finally {
+      setConfirming(false);
+    }
+  };
+
+  // Payment step — shown after confirming the ride type
+  if (pendingRide) {
+    const ride = rideTypes.find((r) => r.id === selectedRide);
+    return (
+      <div className="uber-card">
+        <div className="flex items-center gap-3 mb-4">
+          <FaCreditCard className="text-2xl text-gray-700" />
+          <div>
+            <h3 className="text-xl font-bold">Confirm payment</h3>
+            <p className="text-sm text-gray-500">
+              {ride?.type || pendingRide.ride_type} · {pendingRide.pickup} → {pendingRide.destination}
+            </p>
+          </div>
+        </div>
+
+        <div className="bg-gray-50 rounded-xl p-4 mb-4 flex items-center justify-between">
+          <span className="text-gray-600 font-medium">Fare</span>
+          <span className="text-2xl font-extrabold">${Number(pendingRide.price).toFixed(2)}</span>
+        </div>
+        <p className="text-xs text-gray-400 mb-4">
+          You will be redirected to a secure Stripe checkout. Your ride is dispatched the moment payment succeeds.
+        </p>
+
+        {payError && (
+          <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm">
+            {payError}
+          </div>
+        )}
+
+        <button
+          onClick={handlePay}
+          disabled={paying}
+          className="uber-button flex items-center justify-center gap-2"
+        >
+          {paying ? (
+            <>
+              <FaSpinner className="animate-spin" /> Opening secure checkout...
+            </>
+          ) : (
+            <>
+              <FaCreditCard /> Pay ${Number(pendingRide.price).toFixed(2)}
+            </>
+          )}
+        </button>
+
+        <button
+          onClick={handleCancel}
+          disabled={paying}
+          className="mt-3 w-full py-3 rounded-full border-2 border-gray-200 text-gray-500 font-semibold hover:bg-gray-50 transition flex items-center justify-center gap-2"
+        >
+          <FaTimesCircle /> Cancel ride
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="uber-card">

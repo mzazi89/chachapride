@@ -65,15 +65,12 @@ OWNER_PLATE="OWNER-01"
 
 > `.env.local` is gitignored — never commit real credentials. Set the same `DATABASE_URL`, `JWT_SECRET`, and owner vars in every deployment (Vercel etc.).
 
-4. Create the tables, provision the owner, and (optionally) seed demo users:
+4. Create the tables and provision the owner:
 
 ```bash
-npm run db:setup    # apply schema
+npm run db:setup    # apply schema (incl. default ride types)
 npm run db:owner    # create/update owner from OWNER_EMAIL / OWNER_PASSWORD
-npm run db:seed     # demo rider + approved demo driver + sample rides
 ```
-
-Demo login: `demo@chachapride.com` / `password123`
 
 5. Run:
 

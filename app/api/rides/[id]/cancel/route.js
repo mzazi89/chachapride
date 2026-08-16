@@ -11,7 +11,7 @@ export async function POST(request, { params }) {
   try {
     const { rows } = await pool.query(
       `UPDATE rides SET status = 'cancelled'
-       WHERE id = $1 AND user_id = $2 AND status = 'requested'
+       WHERE id = $1 AND user_id = $2 AND status IN ('payment_pending', 'requested')
        RETURNING id, status`,
       [id, user.id]
     );
@@ -20,7 +20,7 @@ export async function POST(request, { params }) {
       if (existing.length === 0) {
         return NextResponse.json({ error: 'Ride not found' }, { status: 404 });
       }
-      return NextResponse.json({ error: 'Ride can only be cancelled while waiting for a driver' }, { status: 400 });
+      return NextResponse.json({ error: 'Ride can only be cancelled before a driver is assigned' }, { status: 400 });
     }
     return NextResponse.json({ ride: rows[0] });
   } catch (err) {

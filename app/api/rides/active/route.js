@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
 import pool from '../../../../lib/db';
 import { guardRole } from '../../../../lib/guard';
+import { haversineKm } from '../../../../lib/pricing';
 
-const ACTIVE_STATUSES = ['requested', 'accepted', 'en_route'];
+const ACTIVE_STATUSES = ['payment_pending', 'requested', 'accepted', 'en_route'];
 
 export async function GET() {
   const { user, response } = await guardRole('rider');
@@ -32,6 +33,11 @@ export async function GET() {
       delete ride.driver_phone;
       delete ride.vehicle_model;
       delete ride.plate_number;
+
+      if (ride.driver_lat != null && ride.pickup_lat != null) {
+        const km = haversineKm(ride.driver_lat, ride.driver_lng, ride.pickup_lat, ride.pickup_lng);
+        if (km !== null) ride.etaMinutes = Math.max(1, Math.round((km / 30) * 60));
+      }
     }
 
     return NextResponse.json({ ride });

@@ -9,6 +9,7 @@ const Map = dynamic(() => import('./Map'), { ssr: false });
 const POLL_MS = 4000;
 
 const STATUS_TEXT = {
+  payment_pending: 'Payment required to start your ride',
   requested: 'Finding your driver...',
   accepted: 'Driver on the way to pick you up',
   en_route: 'You are on your way!',
@@ -20,6 +21,7 @@ export default function TripTracker({ rideId, onEnded }) {
   const [track, setTrack] = useState(null);
   const [error, setError] = useState('');
   const [cancelling, setCancelling] = useState(false);
+  const [paying, setPaying] = useState(false);
 
   const fetchTrack = async (silent = false) => {
     try {
@@ -70,6 +72,24 @@ export default function TripTracker({ rideId, onEnded }) {
     }
   };
 
+  const handlePay = async () => {
+    setPaying(true);
+    setError('');
+    try {
+      const res = await fetch('/api/payments/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rideId }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Could not start payment');
+      window.location.href = data.url;
+    } catch (err) {
+      setError(err.message);
+      setPaying(false);
+    }
+  };
+
   if (!track) {
     return (
       <div className="uber-card flex items-center justify-center gap-2 py-10 text-gray-500">
@@ -99,6 +119,33 @@ export default function TripTracker({ rideId, onEnded }) {
           </div>
         </div>
 
+        {track.etaMinutes && (track.status === 'accepted' || track.status === 'en_route') && (
+          <p className="text-sm font-medium text-blue-600 mb-3">
+            Driver arrives in ~{track.etaMinutes} min
+          </p>
+        )}
+
+        {track.status === 'payment_pending' && (
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-4">
+            <p className="text-sm text-amber-800 mb-3">
+              Your ride is reserved but not yet paid. Complete payment to dispatch your driver.
+            </p>
+            <button
+              onClick={handlePay}
+              disabled={paying}
+              className="w-full py-3 rounded-full bg-black text-white font-semibold hover:bg-gray-800 transition flex items-center justify-center gap-2"
+            >
+              {paying ? (
+                <>
+                  <FaSpinner className="animate-spin" /> Opening checkout...
+                </>
+              ) : (
+                <>Pay ${Number(track.price).toFixed(2)}</>
+              )}
+            </button>
+          </div>
+        )}
+
         {track.driver && (
           <div className="flex items-center gap-4 bg-gray-50 rounded-xl p-4 mb-4">
             <div className="w-12 h-12 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-lg">
@@ -126,7 +173,7 @@ export default function TripTracker({ rideId, onEnded }) {
           </div>
         )}
 
-        {track.status === 'requested' && (
+        {(track.status === 'payment_pending' || track.status === 'requested') && (
           <button
             onClick={handleCancel}
             disabled={cancelling}

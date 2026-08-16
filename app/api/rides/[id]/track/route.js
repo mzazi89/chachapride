@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import pool from '../../../../../lib/db';
 import { guardRole } from '../../../../../lib/guard';
+import { haversineKm } from '../../../../../lib/pricing';
 
 export async function GET(request, { params }) {
   const { user, response } = await guardRole('rider', 'driver', 'owner');
@@ -33,6 +34,12 @@ export async function GET(request, { params }) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
+    let etaMinutes = null;
+    if (ride.driver_lat != null && ride.pickup_lat != null) {
+      const km = haversineKm(ride.driver_lat, ride.driver_lng, ride.pickup_lat, ride.pickup_lng);
+      if (km !== null) etaMinutes = Math.max(1, Math.round((km / 30) * 60));
+    }
+
     return NextResponse.json({
       status: ride.status,
       ride_type: ride.ride_type,
@@ -51,6 +58,7 @@ export async function GET(request, { params }) {
         : null,
       driverLocation: ride.driver_lat ? { lat: ride.driver_lat, lng: ride.driver_lng } : null,
       driverUpdatedAt: ride.driver_updated_at,
+      etaMinutes,
     });
   } catch (err) {
     console.error('[track] database error:', err.message);
