@@ -1,6 +1,7 @@
 import './globals.css'
 import { RideProvider } from './context/RideContext'
 import { AuthProvider } from './context/AuthContext'
+import Footer from './components/Footer'
 
 export const metadata = {
   title: 'chachapride - Go anywhere',
@@ -19,10 +20,13 @@ export default function RootLayout({ children }) {
           rel="stylesheet"
         />
       </head>
-      <body className="font-sans antialiased bg-gray-50">
+      <body className="font-sans antialiased bg-gray-50 flex flex-col min-h-screen">
         <AuthProvider>
           <RideProvider>
-            {children}
+            <div className="flex-1">
+              {children}
+            </div>
+            <Footer />
           </RideProvider>
         </AuthProvider>
       </body>
