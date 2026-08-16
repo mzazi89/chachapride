@@ -140,7 +140,7 @@ export default function Home() {
             {/* Ride Options - Show after request */}
             {showRides && !activeRideId && (
               <div className="animate-slide-up">
-                <RideOptions />
+                <RideOptions onConfirmed={setActiveRideId} />
               </div>
             )}
           </div>

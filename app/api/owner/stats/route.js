@@ -15,7 +15,9 @@ export async function GET() {
         (SELECT count(*)::int FROM rides WHERE status IN ('requested','accepted','en_route')) AS active_rides,
         (SELECT count(*)::int FROM users WHERE role = 'driver') AS total_drivers,
         (SELECT count(*)::int FROM drivers WHERE approved) AS approved_drivers,
-        (SELECT count(*)::int FROM drivers WHERE status IN ('available','on_trip')) AS online_drivers
+        (SELECT count(*)::int FROM drivers WHERE status IN ('available','on_trip')) AS online_drivers,
+        (SELECT COALESCE(sum(amount), 0)::float FROM cash_settlements WHERE status IN ('pending','deposited')) AS pending_commission,
+        (SELECT COALESCE(sum(amount), 0)::float FROM cash_settlements) AS total_commission
     `);
     return NextResponse.json({ stats: rows[0] });
   } catch (err) {

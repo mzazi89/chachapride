@@ -2,7 +2,8 @@ import { NextResponse } from 'next/server';
 import pool from '../../../lib/db';
 import { guardRole } from '../../../lib/guard';
 import { getActiveRideTypes, getRideType } from '../../../lib/ride-types';
-import { haversineKm, estimatePrice } from '../../../lib/pricing';
+import { haversineKm, estimatePrice, commissionFor } from '../../../lib/pricing';
+import { dispatchRide } from '../../../lib/dispatch';
 
 export async function GET(request) {
   const { user, response } = await guardRole('rider');
@@ -48,6 +49,7 @@ export async function POST(request) {
   const pickup = String(body.pickup ?? '').trim();
   const destination = String(body.destination ?? '').trim();
   const rideType = await getRideType(String(body.rideType ?? ''));
+  const paymentMethod = body.paymentMethod === 'cash' ? 'cash' : 'online';
 
   if (!pickup || !destination) {
     return NextResponse.json({ error: 'Pickup and destination are required' }, { status: 400 });
@@ -64,16 +66,26 @@ export async function POST(request) {
 
   const km = haversineKm(pickupLat, pickupLng, destinationLat, destinationLng);
   const price = estimatePrice(rideType, km);
+  const commission = commissionFor(price);
+  const status = paymentMethod === 'cash' ? 'requested' : 'payment_pending';
 
   try {
     const { rows } = await pool.query(
-      `INSERT INTO rides (user_id, pickup, destination, pickup_lat, pickup_lng, destination_lat, destination_lng, ride_type, price, status)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'payment_pending')
-       RETURNING id, pickup, destination, ride_type, price, status, created_at`,
-      [user.id, pickup, destination, pickupLat, pickupLng, destinationLat, destinationLng, rideType.id, price]
+      `INSERT INTO rides (user_id, pickup, destination, pickup_lat, pickup_lng, destination_lat, destination_lng, ride_type, price, status, payment_method, commission)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+       RETURNING id, pickup, destination, ride_type, price, status, payment_method, commission, created_at`,
+      [user.id, pickup, destination, pickupLat, pickupLng, destinationLat, destinationLng, rideType.id, price, status, paymentMethod, commission]
     );
 
-    return NextResponse.json({ ride: rows[0] }, { status: 201 });
+    const ride = rows[0];
+
+    // Cash rides are live immediately — match the nearest available driver now
+    let assignment = null;
+    if (status === 'requested') {
+      assignment = await dispatchRide(ride.id);
+    }
+
+    return NextResponse.json({ ride, assignment }, { status: 201 });
   } catch (err) {
     console.error('[rides POST] database error:', err.message);
     return NextResponse.json({ error: 'Database error.' }, { status: 500 });

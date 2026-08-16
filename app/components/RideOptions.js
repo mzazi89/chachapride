@@ -1,10 +1,10 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { FaSpinner, FaCreditCard, FaTimesCircle } from 'react-icons/fa';
+import { FaSpinner, FaCreditCard, FaTimesCircle, FaMoneyBillWave } from 'react-icons/fa';
 import RideCard from './RideCard';
 import { useRide } from '../context/RideContext';
 
-export default function RideOptions() {
+export default function RideOptions({ onConfirmed }) {
   const {
     pickup,
     destination,
@@ -19,6 +19,7 @@ export default function RideOptions() {
   const [error, setError] = useState('');
   const [confirming, setConfirming] = useState(false);
   const [pendingRide, setPendingRide] = useState(null);
+  const [payMethod, setPayMethod] = useState('online');
   const [paying, setPaying] = useState(false);
   const [payError, setPayError] = useState('');
   const [confirmError, setConfirmError] = useState('');
@@ -71,11 +72,17 @@ export default function RideOptions() {
           destinationLat: destinationCoords?.lat ?? null,
           destinationLng: destinationCoords?.lng ?? null,
           rideType: selectedRide,
+          paymentMethod: payMethod,
         }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to confirm ride');
-      setPendingRide(data.ride);
+      if (data.ride.payment_method === 'cash') {
+        // Cash ride is live immediately — go straight to the trip tracker
+        onConfirmed(data.ride.id);
+      } else {
+        setPendingRide(data.ride);
+      }
     } catch (err) {
       setConfirmError(err.message);
     } finally {
@@ -87,7 +94,7 @@ export default function RideOptions() {
     setPaying(true);
     setPayError('');
     try {
-      const res = await fetch('/api/payments/checkout', {
+      const res = await fetch('/api/payments/initialize', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ rideId: pendingRide.id }),
@@ -134,7 +141,8 @@ export default function RideOptions() {
           <span className="text-2xl font-extrabold">${Number(pendingRide.price).toFixed(2)}</span>
         </div>
         <p className="text-xs text-gray-400 mb-4">
-          You will be redirected to a secure Stripe checkout. Your ride is dispatched the moment payment succeeds.
+          You will be redirected to a secure Paystack checkout (card or mobile
+          money). Your ride is dispatched the moment payment succeeds.
         </p>
 
         {payError && (
@@ -150,7 +158,7 @@ export default function RideOptions() {
         >
           {paying ? (
             <>
-              <FaSpinner className="animate-spin" /> Opening secure checkout...
+              <FaSpinner className="animate-spin" /> Opening Paystack...
             </>
           ) : (
             <>
@@ -215,20 +223,51 @@ export default function RideOptions() {
       )}
 
       {selectedRide && !loading && !error && (
-        <button
-          onClick={handleConfirm}
-          disabled={confirming}
-          className="uber-button mt-6 flex items-center justify-center gap-2"
-        >
-          {confirming ? (
-            <>
-              <FaSpinner className="animate-spin" />
-              Confirming...
-            </>
-          ) : (
-            `Confirm ${rideTypes.find((r) => r.id === selectedRide)?.type}`
+        <>
+          <div className="mt-6 grid grid-cols-2 gap-3">
+            <button
+              onClick={() => setPayMethod('online')}
+              className={`py-3 rounded-2xl border-2 text-sm font-semibold flex items-center justify-center gap-2 transition ${
+                payMethod === 'online'
+                  ? 'border-black bg-black text-white'
+                  : 'border-gray-200 text-gray-500 hover:border-gray-300'
+              }`}
+            >
+              <FaCreditCard /> Pay online
+            </button>
+            <button
+              onClick={() => setPayMethod('cash')}
+              className={`py-3 rounded-2xl border-2 text-sm font-semibold flex items-center justify-center gap-2 transition ${
+                payMethod === 'cash'
+                  ? 'border-emerald-600 bg-emerald-600 text-white'
+                  : 'border-gray-200 text-gray-500 hover:border-gray-300'
+              }`}
+            >
+              <FaMoneyBillWave /> Pay cash
+            </button>
+          </div>
+          {payMethod === 'cash' && (
+            <p className="mt-2 text-xs text-gray-400 text-center">
+              Pay the driver in cash. A commission deposit will be tracked on
+              the driver&apos;s account.
+            </p>
           )}
-        </button>
+
+          <button
+            onClick={handleConfirm}
+            disabled={confirming}
+            className="uber-button mt-4 flex items-center justify-center gap-2"
+          >
+            {confirming ? (
+              <>
+                <FaSpinner className="animate-spin" />
+                Confirming...
+              </>
+            ) : (
+              `Confirm ${rideTypes.find((r) => r.id === selectedRide)?.type}`
+            )}
+          </button>
+        </>
       )}
     </div>
   );

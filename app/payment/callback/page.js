@@ -4,42 +4,42 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { FaSpinner, FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
 
-function PaymentSuccess() {
+function PaymentCallback() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const rideId = searchParams.get('rideId');
-  const sessionId = searchParams.get('session_id');
-  const [state, setState] = useState('confirming'); // confirming | done | error
+  const reference = searchParams.get('reference') || searchParams.get('trxref');
+  const [state, setState] = useState('verifying'); // verifying | done | error
 
   useEffect(() => {
-    if (!rideId || !sessionId) {
+    if (!rideId || !reference) {
       setState('error');
       return;
     }
-    fetch('/api/payments/confirm', {
+    fetch('/api/payments/verify', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ rideId, sessionId }),
+      body: JSON.stringify({ rideId, reference }),
     })
       .then(async (res) => {
         const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'Payment could not be confirmed');
+        if (!res.ok) throw new Error(data.error || 'Payment could not be verified');
         setState('done');
         setTimeout(() => router.replace('/'), 1200);
       })
-      .catch((err) => {
+      .catch(() => {
         setState('error');
       });
-  }, [rideId, sessionId, router]);
+  }, [rideId, reference, router]);
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="uber-card text-center py-10">
-          {state === 'confirming' && (
+          {state === 'verifying' && (
             <>
               <FaSpinner className="animate-spin text-4xl text-blue-600 mx-auto mb-4" />
-              <h1 className="text-2xl font-bold mb-1">Confirming your payment...</h1>
+              <h1 className="text-2xl font-bold mb-1">Verifying your payment...</h1>
               <p className="text-gray-500">We are dispatching your driver.</p>
             </>
           )}
@@ -53,7 +53,7 @@ function PaymentSuccess() {
           {state === 'error' && (
             <>
               <FaTimesCircle className="text-5xl text-red-400 mx-auto mb-4" />
-              <h1 className="text-2xl font-bold mb-2">We could not confirm your payment</h1>
+              <h1 className="text-2xl font-bold mb-2">We could not verify your payment</h1>
               <p className="text-gray-500 mb-6">
                 Your payment may still have succeeded — check your ride status.
               </p>
@@ -71,10 +71,10 @@ function PaymentSuccess() {
   );
 }
 
-export default function PaymentSuccessPage() {
+export default function PaymentCallbackPage() {
   return (
     <Suspense fallback={<div className="min-h-screen" />}>
-      <PaymentSuccess />
+      <PaymentCallback />
     </Suspense>
   );
 }

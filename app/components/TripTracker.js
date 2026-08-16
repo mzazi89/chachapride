@@ -76,7 +76,7 @@ export default function TripTracker({ rideId, onEnded }) {
     setPaying(true);
     setError('');
     try {
-      const res = await fetch('/api/payments/checkout', {
+      const res = await fetch('/api/payments/initialize', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ rideId }),
