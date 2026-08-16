@@ -15,7 +15,11 @@ export default function LocationBanner() {
     if (watchId.current != null) return;
     watchId.current = navigator.geolocation.watchPosition(
       (pos) =>
-        setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+        setUserLocation({
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+          accuracy: pos.coords.accuracy,
+        }),
       (err) => {
         if (err.code === err.PERMISSION_DENIED) {
           setDenied(true);
@@ -28,7 +32,11 @@ export default function LocationBanner() {
   const enableLocation = () => {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        setUserLocation({
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+          accuracy: pos.coords.accuracy,
+        });
         localStorage.setItem(LS_KEY, 'granted');
         startTracking();
         setVisible(false);
