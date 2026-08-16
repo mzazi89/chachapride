@@ -42,6 +42,9 @@ export async function POST(request) {
     await createSession(rows[0].id);
     return NextResponse.json({ user: rows[0] }, { status: 201 });
   } catch (err) {
+    if (err.code === '23505') {
+      return NextResponse.json({ error: 'An account with this email already exists' }, { status: 409 });
+    }
     console.error('[signup] database error:', err.message);
     return NextResponse.json({ error: 'Database error. Check that DATABASE_URL is set and Neon is reachable.' }, { status: 500 });
   }
