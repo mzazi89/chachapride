@@ -6,11 +6,22 @@ A real ride-hailing web app built with Next.js 14 — sign up, log in, geocode y
 
 - 🔐 Real authentication: signup, login, logout (bcrypt password hashing + signed JWT in an httpOnly cookie)
 - 🗄️ Neon Postgres storage: users and ride history persisted in the cloud
-- 🗺️ Real map: Leaflet + OpenStreetMap tiles, markers, and OSRM route drawing
+- 🗺️ Real map: Leaflet with **Streets / Satellite / Terrain layer switcher**, markers, and OSRM route drawing
 - 📍 Real geocoding: location suggestions and reverse geocoding via Nominatim
+- 📡 Live tracking: driver GPS reported every few seconds, moving car marker + driver card with **call button** (driver phone number)
+- 🔐 Role-based auth: riders, drivers (owner-approved), and owner
 - 💰 Distance-based pricing computed server-side
 - 📱 Fully responsive (map visible on mobile too)
 - 📜 Ride history page for logged-in users
+
+## Platform
+
+This repo is the **rider app**. The full platform also includes:
+
+- [chachapride-driver](https://github.com/mzazi89/chachapride-driver) — driver work app (accept rides, GPS reporting, earnings). Drivers sign up with vehicle details + phone; the **owner can log in with owner credentials and drive directly**.
+- [chachapride-owner](https://github.com/mzazi89/chachapride-owner) — owner dashboard (stats, ride management, driver approvals, live map).
+
+All three share the same Neon database and JWT secret.
 
 ## Tech Stack
 
@@ -43,15 +54,23 @@ Fill in `.env.local`:
 ```env
 DATABASE_URL="postgresql://user:password@ep-xxx-pooler.region.aws.neon.tech/dbname?sslmode=require"
 JWT_SECRET="<generate with: node -e \"console.log(require('crypto').randomBytes(32).toString('hex'))\">"
+
+# Owner account credentials (used to provision / reset the owner login)
+OWNER_EMAIL="owner@chachapride.com"
+OWNER_PASSWORD="<strong password, min 8 chars>"
+# Optional vehicle details when the owner drives (driver app)
+OWNER_VEHICLE="Owner Vehicle"
+OWNER_PLATE="OWNER-01"
 ```
 
-> `.env.local` is gitignored — never commit real credentials.
+> `.env.local` is gitignored — never commit real credentials. Set the same `DATABASE_URL`, `JWT_SECRET`, and owner vars in every deployment (Vercel etc.).
 
-4. Create the tables and (optionally) seed a demo user:
+4. Create the tables, provision the owner, and (optionally) seed demo users:
 
 ```bash
-node --env-file=.env.local scripts/setup-db.mjs
-node --env-file=.env.local scripts/seed.mjs
+npm run db:setup    # apply schema
+npm run db:owner    # create/update owner from OWNER_EMAIL / OWNER_PASSWORD
+npm run db:seed     # demo rider + approved demo driver + sample rides
 ```
 
 Demo login: `demo@chachapride.com` / `password123`

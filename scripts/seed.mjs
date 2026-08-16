@@ -20,7 +20,17 @@ async function upsertUser(email, name, role) {
 }
 
 try {
-  const owner = await upsertUser('owner@chachapride.com', 'Chacha Owner', 'owner');
+  const ownerEmail = (process.env.OWNER_EMAIL || 'owner@chachapride.com').trim().toLowerCase();
+  const ownerPassword = process.env.OWNER_PASSWORD || 'password123';
+  const ownerHash = await bcrypt.hash(ownerPassword, 10);
+  const { rows: ownerRows } = await pool.query(
+    `INSERT INTO users (name, email, password_hash, role)
+     VALUES ($1, $2, $3, 'owner')
+     ON CONFLICT (email) DO UPDATE SET role = 'owner', password_hash = EXCLUDED.password_hash
+     RETURNING id, role`,
+    [process.env.OWNER_NAME || 'Chacha Owner', ownerEmail, ownerHash]
+  );
+  const owner = ownerRows[0];
   const driver = await upsertUser('driver@chachapride.com', 'Demo Driver', 'driver');
   const rider = await upsertUser('demo@chachapride.com', 'Demo Rider', 'rider');
 
@@ -40,8 +50,8 @@ try {
     [rider.id]
   );
 
-  console.log('Seed complete. Accounts (password123):');
-  console.log('  owner  -> owner@chachapride.com  (owner site)');
+  console.log(`Seed complete. Accounts (demo password 'password123', owner uses OWNER_PASSWORD env):`);
+  console.log(`  owner  -> ${ownerEmail}  (owner site)`);
   console.log('  driver -> driver@chachapride.com (driver site, approved)');
   console.log('  rider  -> demo@chachapride.com   (rider site)');
 } catch (err) {

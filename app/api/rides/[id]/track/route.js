@@ -13,7 +13,7 @@ export async function GET(request, { params }) {
       `SELECT r.id, r.user_id, r.driver_id, r.pickup, r.destination, r.pickup_lat, r.pickup_lng,
               r.destination_lat, r.destination_lng, r.ride_type, r.price, r.status,
               r.driver_lat, r.driver_lng, r.driver_updated_at,
-              d.name AS driver_name, dr.vehicle_model, dr.plate_number
+              d.name AS driver_name, d.phone AS driver_phone, dr.vehicle_model, dr.plate_number
        FROM rides r
        LEFT JOIN users d ON d.id = r.driver_id
        LEFT JOIN drivers dr ON dr.user_id = r.driver_id
@@ -44,6 +44,7 @@ export async function GET(request, { params }) {
       driver: ride.driver_name
         ? {
             name: ride.driver_name,
+            phone: ride.driver_phone,
             vehicle_model: ride.vehicle_model,
             plate_number: ride.plate_number,
           }

@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import { FaSpinner, FaCarSide, FaTimesCircle, FaCheckCircle } from 'react-icons/fa';
+import { FaSpinner, FaCarSide, FaTimesCircle, FaCheckCircle, FaPhone } from 'react-icons/fa';
 
 const Map = dynamic(() => import('./Map'), { ssr: false });
 
@@ -109,8 +109,20 @@ export default function TripTracker({ rideId, onEnded }) {
               <p className="text-sm text-gray-500">
                 {track.driver.vehicle_model} · {track.driver.plate_number}
               </p>
+              {track.driver.phone && (
+                <a
+                  href={`tel:${track.driver.phone}`}
+                  className="inline-flex items-center gap-1.5 mt-1.5 text-sm font-semibold text-blue-600 hover:text-blue-700"
+                >
+                  <FaPhone className="text-xs" /> {track.driver.phone}
+                </a>
+              )}
             </div>
-            <span className="text-sm font-semibold text-gray-700">${Number(track.price).toFixed(2)}</span>
+            <div className="text-right">
+              <span className="text-sm font-semibold text-gray-700">
+                ${Number(track.price).toFixed(2)}
+              </span>
+            </div>
           </div>
         )}
 
