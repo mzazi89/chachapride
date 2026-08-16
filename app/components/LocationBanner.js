@@ -2,14 +2,30 @@
 import { useEffect, useRef, useState } from 'react';
 import { FaMapMarkerAlt, FaTimes } from 'react-icons/fa';
 import { useRide } from '../context/RideContext';
+import { reverseGeocode } from '../../lib/geocode';
 
 const LS_KEY = 'chacha-location';
 
 export default function LocationBanner() {
-  const { userLocation, setUserLocation } = useRide();
+  const { userLocation, setUserLocation, pickup, setPickup } = useRide();
   const [visible, setVisible] = useState(false);
   const [denied, setDenied] = useState(false);
   const watchId = useRef(null);
+
+  // Auto-select the pickup point from the first location fix (only if empty)
+  const applyPosition = (pos) => {
+    const coords = {
+      lat: pos.coords.latitude,
+      lng: pos.coords.longitude,
+      accuracy: pos.coords.accuracy,
+    };
+    setUserLocation(coords);
+    if (!pickup) {
+      reverseGeocode(coords.lat, coords.lng)
+        .catch(() => `${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)}`)
+        .then((label) => setPickup(label, { lat: coords.lat, lng: coords.lng }));
+    }
+  };
 
   const startTracking = () => {
     if (watchId.current != null) return;
@@ -32,11 +48,7 @@ export default function LocationBanner() {
   const enableLocation = () => {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        setUserLocation({
-          lat: pos.coords.latitude,
-          lng: pos.coords.longitude,
-          accuracy: pos.coords.accuracy,
-        });
+        applyPosition(pos);
         localStorage.setItem(LS_KEY, 'granted');
         startTracking();
         setVisible(false);
@@ -68,6 +80,12 @@ export default function LocationBanner() {
       if (s.state === 'granted') {
         localStorage.setItem(LS_KEY, 'granted');
         startTracking();
+        // already approved before: still grab the exact position and set pickup
+        navigator.geolocation.getCurrentPosition(
+          (pos) => applyPosition(pos),
+          () => {},
+          { enableHighAccuracy: true, timeout: 10000 }
+        );
       } else if (s.state === 'prompt') {
         setVisible(true);
       } else {
