@@ -25,9 +25,14 @@ export default function SignupPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, password }),
       });
-      const data = await res.json();
+      let data = {};
+      try {
+        data = await res.json();
+      } catch {
+        // non-JSON response (e.g. proxy error page)
+      }
       if (!res.ok) {
-        setError(data.error || 'Something went wrong');
+        setError(data.error || `Request failed (HTTP ${res.status})`);
         return;
       }
       await refresh();

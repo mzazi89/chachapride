@@ -27,17 +27,22 @@ export async function POST(request) {
     return NextResponse.json({ error: 'Password must be at least 8 characters' }, { status: 400 });
   }
 
-  const { rows: existing } = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
-  if (existing.length > 0) {
-    return NextResponse.json({ error: 'An account with this email already exists' }, { status: 409 });
+  try {
+    const { rows: existing } = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
+    if (existing.length > 0) {
+      return NextResponse.json({ error: 'An account with this email already exists' }, { status: 409 });
+    }
+
+    const passwordHash = await bcrypt.hash(password, 10);
+    const { rows } = await pool.query(
+      'INSERT INTO users (name, email, password_hash) VALUES ($1, $2, $3) RETURNING id, name, email, created_at',
+      [name, email, passwordHash]
+    );
+
+    await createSession(rows[0].id);
+    return NextResponse.json({ user: rows[0] }, { status: 201 });
+  } catch (err) {
+    console.error('[signup] database error:', err.message);
+    return NextResponse.json({ error: 'Database error. Check that DATABASE_URL is set and Neon is reachable.' }, { status: 500 });
   }
-
-  const passwordHash = await bcrypt.hash(password, 10);
-  const { rows } = await pool.query(
-    'INSERT INTO users (name, email, password_hash) VALUES ($1, $2, $3) RETURNING id, name, email, created_at',
-    [name, email, passwordHash]
-  );
-
-  await createSession(rows[0].id);
-  return NextResponse.json({ user: rows[0] }, { status: 201 });
 }

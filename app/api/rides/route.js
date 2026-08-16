@@ -10,22 +10,27 @@ export async function GET(request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const { searchParams } = new URL(request.url);
-  const toNum = (v) => (typeof v === 'string' && v !== '' && Number.isFinite(Number(v)) ? Number(v) : null);
-  const km = haversineKm(
-    toNum(searchParams.get('fromLat')),
-    toNum(searchParams.get('fromLng')),
-    toNum(searchParams.get('toLat')),
-    toNum(searchParams.get('toLng'))
-  );
-  const rideTypes = RIDE_TYPES.map((t) => ({ ...t, price: estimatePrice(t, km) }));
+  try {
+    const { searchParams } = new URL(request.url);
+    const toNum = (v) => (typeof v === 'string' && v !== '' && Number.isFinite(Number(v)) ? Number(v) : null);
+    const km = haversineKm(
+      toNum(searchParams.get('fromLat')),
+      toNum(searchParams.get('fromLng')),
+      toNum(searchParams.get('toLat')),
+      toNum(searchParams.get('toLng'))
+    );
+    const rideTypes = RIDE_TYPES.map((t) => ({ ...t, price: estimatePrice(t, km) }));
 
-  const { rows } = await pool.query(
-    'SELECT id, pickup, destination, ride_type, price, status, created_at FROM rides WHERE user_id = $1 ORDER BY created_at DESC',
-    [user.id]
-  );
+    const { rows } = await pool.query(
+      'SELECT id, pickup, destination, ride_type, price, status, created_at FROM rides WHERE user_id = $1 ORDER BY created_at DESC',
+      [user.id]
+    );
 
-  return NextResponse.json({ rideTypes, rides: rows });
+    return NextResponse.json({ rideTypes, rides: rows });
+  } catch (err) {
+    console.error('[rides GET] database error:', err.message);
+    return NextResponse.json({ error: 'Database error.' }, { status: 500 });
+  }
 }
 
 export async function POST(request) {
@@ -61,12 +66,17 @@ export async function POST(request) {
   const km = haversineKm(pickupLat, pickupLng, destinationLat, destinationLng);
   const price = estimatePrice(rideType, km);
 
-  const { rows } = await pool.query(
-    `INSERT INTO rides (user_id, pickup, destination, pickup_lat, pickup_lng, destination_lat, destination_lng, ride_type, price, status)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'confirmed')
-     RETURNING id, pickup, destination, ride_type, price, status, created_at`,
-    [user.id, pickup, destination, pickupLat, pickupLng, destinationLat, destinationLng, rideType.id, price]
-  );
+  try {
+    const { rows } = await pool.query(
+      `INSERT INTO rides (user_id, pickup, destination, pickup_lat, pickup_lng, destination_lat, destination_lng, ride_type, price, status)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'confirmed')
+       RETURNING id, pickup, destination, ride_type, price, status, created_at`,
+      [user.id, pickup, destination, pickupLat, pickupLng, destinationLat, destinationLng, rideType.id, price]
+    );
 
-  return NextResponse.json({ ride: rows[0] }, { status: 201 });
+    return NextResponse.json({ ride: rows[0] }, { status: 201 });
+  } catch (err) {
+    console.error('[rides POST] database error:', err.message);
+    return NextResponse.json({ error: 'Database error.' }, { status: 500 });
+  }
 }
