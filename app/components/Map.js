@@ -1,60 +1,112 @@
 'use client';
-import { useEffect, useRef, useState } from 'react';
-import { FaSearch, FaCrosshairs } from 'react-icons/fa';
+import { useEffect, useState } from 'react';
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Polyline,
+  useMap,
+  useMapEvents,
+} from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import { useRide } from '../context/RideContext';
+import { reverseGeocode } from '../../lib/geocode';
 
-export default function Map() {
-  const mapContainer = useRef(null);
-  const [isLoading, setIsLoading] = useState(true);
+const pickupIcon = L.divIcon({
+  className: '',
+  html: '<div style="width:18px;height:18px;background:#22c55e;border:3px solid #fff;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,.4)"></div>',
+  iconSize: [18, 18],
+  iconAnchor: [9, 9],
+});
+
+const destinationIcon = L.divIcon({
+  className: '',
+  html: '<div style="width:18px;height:18px;background:#ef4444;border:3px solid #fff;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,.4)"></div>',
+  iconSize: [18, 18],
+  iconAnchor: [9, 9],
+});
+
+function RouteLayer() {
+  const { pickupCoords, destinationCoords } = useRide();
+  const [route, setRoute] = useState(null);
+  const map = useMap();
 
   useEffect(() => {
-    // Simulate map loading
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1500);
+    let cancelled = false;
+    if (!pickupCoords || !destinationCoords) {
+      setRoute(null);
+      return;
+    }
 
-    return () => clearTimeout(timer);
-  }, []);
+    const url =
+      `https://router.project-osrm.org/route/v1/driving/` +
+      `${pickupCoords.lng},${pickupCoords.lat};${destinationCoords.lng},${destinationCoords.lat}` +
+      `?overview=full&geometries=geojson`;
+
+    fetch(url)
+      .then((res) => res.json())
+      .then((data) => {
+        if (cancelled || !data.routes || data.routes.length === 0) return;
+        const coords = data.routes[0].geometry.coordinates.map(([lng, lat]) => [lat, lng]);
+        setRoute(coords);
+        map.fitBounds(L.latLngBounds(coords), { padding: [40, 40] });
+      })
+      .catch(() => {});
+
+    return () => {
+      cancelled = true;
+    };
+  }, [pickupCoords, destinationCoords, map]);
+
+  if (!route) return null;
+  return (
+    <Polyline positions={route} pathOptions={{ color: '#111827', weight: 4, opacity: 0.85 }} />
+  );
+}
+
+function ClickHandler() {
+  const { pickupCoords, setPickup, setDestination } = useRide();
+
+  useMapEvents({
+    async click(e) {
+      const { lat, lng } = e.latlng;
+      const label = await reverseGeocode(lat, lng).catch(
+        () => `${lat.toFixed(4)}, ${lng.toFixed(4)}`
+      );
+      if (!pickupCoords) {
+        setPickup(label, { lat, lng });
+      } else {
+        setDestination(label, { lat, lng });
+      }
+    },
+  });
+
+  return null;
+}
+
+export default function Map() {
+  const { pickupCoords, destinationCoords } = useRide();
 
   return (
-    <div className="relative h-full w-full">
-      {isLoading ? (
-        <div className="flex items-center justify-center h-full bg-gray-100">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto"></div>
-            <p className="mt-4 text-gray-500">Loading map...</p>
-          </div>
-        </div>
-      ) : (
-        <div className="h-full w-full bg-gray-200 relative">
-          {/* Map placeholder with styling */}
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="text-center">
-              <div className="text-6xl mb-4">🗺️</div>
-              <p className="text-gray-600 font-medium">Map View</p>
-              <p className="text-sm text-gray-400">Connected to mapping service</p>
-            </div>
-          </div>
-
-          {/* Map Controls */}
-          <div className="absolute top-4 right-4 space-y-2">
-            <button className="bg-white p-3 rounded-lg shadow-lg hover:shadow-xl transition">
-              <FaCrosshairs className="text-gray-700" />
-            </button>
-            <button className="bg-white p-3 rounded-lg shadow-lg hover:shadow-xl transition">
-              <FaSearch className="text-gray-700" />
-            </button>
-          </div>
-
-          {/* Location indicator */}
-          <div className="absolute bottom-4 left-4 right-4 bg-white/90 backdrop-blur p-3 rounded-lg shadow-lg">
-            <div className="flex items-center gap-2 text-sm">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-              <span className="font-medium">Your location is set</span>
-              <span className="text-gray-400 text-xs ml-auto">Updated just now</span>
-            </div>
-          </div>
-        </div>
+    <MapContainer
+      center={[1.3521, 103.8198]}
+      zoom={12}
+      scrollWheelZoom
+      className="h-full w-full z-0"
+    >
+      <TileLayer
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+      />
+      {pickupCoords && (
+        <Marker position={[pickupCoords.lat, pickupCoords.lng]} icon={pickupIcon} />
       )}
-    </div>
+      {destinationCoords && (
+        <Marker position={[destinationCoords.lat, destinationCoords.lng]} icon={destinationIcon} />
+      )}
+      <RouteLayer />
+      <ClickHandler />
+    </MapContainer>
   );
 }
