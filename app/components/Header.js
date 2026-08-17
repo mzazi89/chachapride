@@ -39,6 +39,9 @@ export default function Header() {
             <Link href="/business" className="text-sm font-medium hover:text-gray-600 transition">
               Business
             </Link>
+            <Link href="/install" className="text-sm font-medium hover:text-gray-600 transition">
+              Install
+            </Link>
 
             {loading ? (
               <FaSpinner className="animate-spin text-gray-400" />
@@ -94,6 +97,7 @@ export default function Header() {
               <Link href="/" className="text-sm font-medium hover:text-gray-600">Ride</Link>
               <Link href="/history" className="text-sm font-medium hover:text-gray-600">History</Link>
               <Link href="/business" className="text-sm font-medium hover:text-gray-600">Business</Link>
+              <Link href="/install" className="text-sm font-medium hover:text-gray-600">Install</Link>
 
               {loading ? (
                 <FaSpinner className="animate-spin text-gray-400" />
