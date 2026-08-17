@@ -3,7 +3,6 @@ import pool from '../../../lib/db';
 import { guardRole } from '../../../lib/guard';
 import { getActiveRideTypes, getRideType } from '../../../lib/ride-types';
 import { haversineKm, finalFare, commissionFor } from '../../../lib/pricing';
-import { dispatchRide } from '../../../lib/dispatch';
 
 export async function GET(request) {
   const { user, response } = await guardRole('rider');
@@ -50,6 +49,7 @@ export async function POST(request) {
   const destination = String(body.destination ?? '').trim();
   const rideType = await getRideType(String(body.rideType ?? ''));
   const paymentMethod = body.paymentMethod === 'cash' ? 'cash' : 'online';
+  const phone = String(body.phone ?? '').trim() || null;
 
   if (!pickup || !destination) {
     return NextResponse.json({ error: 'Pickup and destination are required' }, { status: 400 });
@@ -79,13 +79,14 @@ export async function POST(request) {
 
     const ride = rows[0];
 
-    // Cash rides are live immediately — match the nearest available driver now
-    let assignment = null;
-    if (status === 'requested') {
-      assignment = await dispatchRide(ride.id);
+    // Save the phone so the assigned driver can call the rider
+    if (phone) {
+      await pool.query('UPDATE users SET phone = $1 WHERE id = $2', [phone, user.id]);
     }
 
-    return NextResponse.json({ ride, assignment }, { status: 201 });
+    // Ride stays 'requested' — nearby online drivers are notified and ring.
+    // The first driver to accept takes the ride.
+    return NextResponse.json({ ride }, { status: 201 });
   } catch (err) {
     console.error('[rides POST] database error:', err.message);
     return NextResponse.json({ error: 'Database error.' }, { status: 500 });

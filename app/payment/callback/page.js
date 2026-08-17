@@ -40,7 +40,7 @@ function PaymentCallback() {
             <>
               <FaSpinner className="animate-spin text-4xl text-blue-600 mx-auto mb-4" />
               <h1 className="text-2xl font-bold mb-1">Verifying your payment...</h1>
-              <p className="text-gray-500">We are dispatching your driver.</p>
+              <p className="text-gray-500">We are notifying nearby drivers.</p>
             </>
           )}
           {state === 'done' && (

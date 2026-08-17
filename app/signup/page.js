@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { FaUser, FaEnvelope, FaLock, FaSpinner } from 'react-icons/fa';
+import { FaUser, FaEnvelope, FaLock, FaPhone, FaSpinner } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 
 export default function SignupPage() {
@@ -11,6 +11,7 @@ export default function SignupPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [phone, setPhone] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -23,7 +24,7 @@ export default function SignupPage() {
       const res = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify({ name, email, password, phone }),
       });
       let data = {};
       try {
@@ -110,6 +111,20 @@ export default function SignupPage() {
                 placeholder="Password (min 8 characters)"
                 required
                 minLength={8}
+                className="bg-transparent w-full outline-none text-gray-700 placeholder-gray-400"
+              />
+            </div>
+
+            <div className="flex items-center gap-3 bg-gray-100 rounded-xl p-4 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-500">
+              <FaPhone className="text-gray-400" />
+              <input
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="Phone number (drivers call this)"
+                required
+                pattern="[0-9+()\-\s]{7,}"
+                title="Enter a valid phone number"
                 className="bg-transparent w-full outline-none text-gray-700 placeholder-gray-400"
               />
             </div>

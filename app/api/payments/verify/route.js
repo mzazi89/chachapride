@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import pool from '../../../../lib/db';
 import { guardRole } from '../../../../lib/guard';
 import { paystackRequest, getPaystackKey } from '../../../../lib/paystack';
-import { dispatchRide } from '../../../../lib/dispatch';
 
 export async function POST(request) {
   const { user, response } = await guardRole('rider');
@@ -50,8 +49,8 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Ride not found or already active' }, { status: 404 });
     }
 
-    const assignment = await dispatchRide(ride.id);
-    return NextResponse.json({ ride, assignment });
+    // Ride stays 'requested' — nearby online drivers ring and the first to accept takes it.
+    return NextResponse.json({ ride });
   } catch (err) {
     console.error('[paystack verify] database error:', err.message);
     return NextResponse.json({ error: 'Database error.' }, { status: 500 });

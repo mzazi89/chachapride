@@ -1,8 +1,9 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { FaSpinner, FaCreditCard, FaTimesCircle, FaMoneyBillWave } from 'react-icons/fa';
+import { FaSpinner, FaCreditCard, FaTimesCircle, FaMoneyBillWave, FaPhone } from 'react-icons/fa';
 import RideCard from './RideCard';
 import { useRide } from '../context/RideContext';
+import { useAuth } from '../context/AuthContext';
 import { fmtKsh } from '../../lib/format';
 
 export default function RideOptions({ onConfirmed }) {
@@ -24,6 +25,9 @@ export default function RideOptions({ onConfirmed }) {
   const [paying, setPaying] = useState(false);
   const [payError, setPayError] = useState('');
   const [confirmError, setConfirmError] = useState('');
+  const [phone, setPhone] = useState('');
+  const { user } = useAuth();
+  const needsPhone = !!user && !user.phone;
 
   useEffect(() => {
     let cancelled = false;
@@ -61,6 +65,11 @@ export default function RideOptions({ onConfirmed }) {
   const handleConfirm = async () => {
     setConfirming(true);
     setConfirmError('');
+    if (needsPhone && !phone.trim()) {
+      setConfirmError('Please enter your phone number — drivers call you on this number');
+      setConfirming(false);
+      return;
+    }
     try {
       const res = await fetch('/api/rides', {
         method: 'POST',
@@ -74,6 +83,7 @@ export default function RideOptions({ onConfirmed }) {
           destinationLng: destinationCoords?.lng ?? null,
           rideType: selectedRide,
           paymentMethod: payMethod,
+          phone: needsPhone ? phone.trim() : undefined,
         }),
       });
       const data = await res.json();
@@ -143,7 +153,7 @@ export default function RideOptions({ onConfirmed }) {
         </div>
         <p className="text-xs text-gray-400 mb-4">
           You will be redirected to a secure Paystack checkout (card or mobile
-          money). Your ride is dispatched the moment payment succeeds.
+          money). Nearby drivers are notified the moment payment succeeds.
         </p>
 
         {payError && (
@@ -256,6 +266,27 @@ export default function RideOptions({ onConfirmed }) {
           <p className="mt-2 text-xs text-amber-600 text-center">
             Fares ×2 between 10:30 PM and 4:30 AM
           </p>
+
+          {needsPhone && (
+            <div className="mt-4">
+              <div className="flex items-center gap-3 bg-gray-100 rounded-xl p-4 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-500">
+                <FaPhone className="text-gray-400" />
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="Your phone number"
+                  required
+                  pattern="[0-9+()\-\s]{7,}"
+                  title="Enter a valid phone number"
+                  className="bg-transparent w-full outline-none text-gray-700 placeholder-gray-400"
+                />
+              </div>
+              <p className="mt-2 text-xs text-gray-400">
+                Your driver will call this number when they arrive.
+              </p>
+            </div>
+          )}
 
           <button
             onClick={handleConfirm}
