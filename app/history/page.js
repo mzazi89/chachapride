@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import Header from '../components/Header';
 import { FaSpinner, FaCar, FaHistory } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
+import { fmtKsh } from '../../lib/format';
 
 const RIDE_ICONS = { uberx: '🚗', uberxl: '🚐', comfort: '🛻', green: '🌿' };
 
@@ -70,7 +71,7 @@ export default function HistoryPage() {
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-bold text-lg">${Number(ride.price).toFixed(2)}</p>
+                    <p className="font-bold text-lg">{fmtKsh(ride.price)}</p>
                     <span className="inline-block mt-1 text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full capitalize">
                       {ride.status}
                     </span>

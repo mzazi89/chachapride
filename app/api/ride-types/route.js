@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getActiveRideTypes } from '../../../lib/ride-types';
+import { finalFare } from '../../../lib/pricing';
 
 // Public: ride types with sample fares (no auth needed)
 export async function GET() {
@@ -8,9 +9,10 @@ export async function GET() {
     const withFares = types.map((t) => ({
       ...t,
       sampleFares: {
-        '5 km': Math.round((t.basePrice + t.perKm * 5) * 100) / 100,
-        '10 km': Math.round((t.basePrice + t.perKm * 10) * 100) / 100,
-        '20 km': Math.round((t.basePrice + t.perKm * 20) * 100) / 100,
+        '2 km': finalFare(t, 2),
+        '3 km': finalFare(t, 3),
+        '5 km': finalFare(t, 5),
+        '10 km': finalFare(t, 10),
       },
     }));
     return NextResponse.json({ rideTypes: withFares });

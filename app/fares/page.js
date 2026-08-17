@@ -1,8 +1,9 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { FaSpinner, FaDollarSign } from 'react-icons/fa';
+import { FaSpinner, FaShieldAlt } from 'react-icons/fa';
+import { fmtKsh } from '../../lib/format';
 
-const SAMPLE_DISTANCES = ['5 km', '10 km', '20 km'];
+const SAMPLE_DISTANCES = ['2 km', '3 km', '5 km', '10 km'];
 
 export default function FaresPage() {
   const [rideTypes, setRideTypes] = useState(null);
@@ -22,9 +23,21 @@ export default function FaresPage() {
     <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <h1 className="text-3xl sm:text-4xl font-extrabold mb-3">Fares</h1>
       <p className="text-gray-500 mb-8">
-        Transparent pricing — what you see before you book is what you pay.
-        Fares are base + per-kilometre, quoted for the exact trip distance.
+        Transparent boda-boda pricing in Kenyan Shillings — the price you see
+        before you book is the price you pay.
       </p>
+
+      <div className="uber-card p-6 mb-6 text-sm text-gray-600">
+        <p className="font-semibold text-gray-800 mb-2">How fares work</p>
+        <ul className="list-disc pl-5 space-y-1">
+          <li>Minimum trip: <strong>KSh 50</strong> (up to 2 km)</li>
+          <li>3 km trip: <strong>KSh 70</strong></li>
+          <li>Beyond 3 km: <strong>KSh 30 per km</strong> (Electric Bike: KSh 25 per km)</li>
+          <li>
+            <strong>Night fare ×2</strong> between 10:30 PM and 4:30 AM
+          </li>
+        </ul>
+      </div>
 
       {error && (
         <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm mb-6">
@@ -49,10 +62,10 @@ export default function FaresPage() {
                   </div>
                 </div>
                 <span className="text-xs font-semibold text-gray-400">
-                  up to {rt.capacity} seats
+                  1 rider · helmet included
                 </span>
               </div>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {SAMPLE_DISTANCES.map((d) => (
                   <div
                     key={d}
@@ -60,7 +73,7 @@ export default function FaresPage() {
                   >
                     <p className="text-xs text-gray-500">{d}</p>
                     <p className="text-lg font-extrabold text-gray-800 mt-1">
-                      ${rt.sampleFares[d].toFixed(2)}
+                      {fmtKsh(rt.sampleFares[d])}
                     </p>
                   </div>
                 ))}
@@ -70,12 +83,12 @@ export default function FaresPage() {
 
           <div className="uber-card p-6 text-sm text-gray-600">
             <p className="flex items-center gap-2 font-semibold text-gray-800 mb-2">
-              <FaDollarSign className="text-green-500" /> Good to know
+              <FaShieldAlt className="text-green-500" /> Good to know
             </p>
             <ul className="list-disc pl-5 space-y-1">
               <li>Final fare is calculated from the real distance of your trip.</li>
-              <li>No cash needed — pay securely by card (Stripe).</li>
-              <li>Prices may vary slightly with traffic and route.</li>
+              <li>Pay online with Paystack (card or mobile money) or pay the rider in cash.</li>
+              <li>Night fare ×2 applies automatically between 10:30 PM and 4:30 AM.</li>
             </ul>
           </div>
         </div>

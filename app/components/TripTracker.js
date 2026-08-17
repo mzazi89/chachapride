@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { FaSpinner, FaCarSide, FaTimesCircle, FaCheckCircle, FaPhone } from 'react-icons/fa';
+import { fmtKsh } from '../../lib/format';
 
 const Map = dynamic(() => import('./Map'), { ssr: false });
 
@@ -140,7 +141,7 @@ export default function TripTracker({ rideId, onEnded }) {
                   <FaSpinner className="animate-spin" /> Opening checkout...
                 </>
               ) : (
-                <>Pay ${Number(track.price).toFixed(2)}</>
+                <>{fmtKsh(track.price)}</>
               )}
             </button>
           </div>
@@ -166,9 +167,7 @@ export default function TripTracker({ rideId, onEnded }) {
               )}
             </div>
             <div className="text-right">
-              <span className="text-sm font-semibold text-gray-700">
-                ${Number(track.price).toFixed(2)}
-              </span>
+              <span className="text-sm font-semibold text-gray-700">{fmtKsh(track.price)}</span>
             </div>
           </div>
         )}
@@ -208,7 +207,7 @@ export default function TripTracker({ rideId, onEnded }) {
               <FaCheckCircle className="text-5xl text-green-500 mx-auto mb-3" />
               <h3 className="text-2xl font-bold mb-1">Trip complete</h3>
               <p className="text-gray-500 mb-4">
-                {track.ride_type} · ${Number(track.price).toFixed(2)}
+                {track.ride_type} · {fmtKsh(track.price)}
               </p>
             </>
           ) : (

@@ -1,5 +1,6 @@
 'use client';
 import { FaClock, FaUsers, FaCheck } from 'react-icons/fa';
+import { fmtKsh } from '../../lib/format';
 
 export default function RideCard({ ride, selected, onSelect }) {
   const { type, icon, price, time, capacity, affordable, description } = ride;
@@ -42,7 +43,7 @@ export default function RideCard({ ride, selected, onSelect }) {
         </div>
 
         <div className="text-right">
-          <p className="font-bold text-lg">${price}</p>
+          <p className="font-bold text-lg">{fmtKsh(price)}</p>
           <p className="text-xs text-gray-400">est. price</p>
           {selected && (
             <div className="mt-2 flex justify-end">

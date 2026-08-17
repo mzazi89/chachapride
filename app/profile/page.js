@@ -15,6 +15,7 @@ import {
 } from 'react-icons/fa';
 import Header from '../components/Header';
 import { useAuth } from '../context/AuthContext';
+import { fmtKsh } from '../../lib/format';
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -102,7 +103,7 @@ export default function ProfilePage() {
             <FaDollarSign className="text-2xl text-green-500" />
             <div>
               <p className="text-sm text-gray-500">Total spent</p>
-              <p className="text-2xl font-extrabold">${totalSpent.toFixed(2)}</p>
+              <p className="text-2xl font-extrabold">{fmtKsh(totalSpent)}</p>
             </div>
           </div>
           <div className="uber-card p-5 flex items-center gap-3">

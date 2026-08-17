@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { FaSpinner, FaCreditCard, FaTimesCircle, FaMoneyBillWave } from 'react-icons/fa';
 import RideCard from './RideCard';
 import { useRide } from '../context/RideContext';
+import { fmtKsh } from '../../lib/format';
 
 export default function RideOptions({ onConfirmed }) {
   const {
@@ -138,7 +139,7 @@ export default function RideOptions({ onConfirmed }) {
 
         <div className="bg-gray-50 rounded-xl p-4 mb-4 flex items-center justify-between">
           <span className="text-gray-600 font-medium">Fare</span>
-          <span className="text-2xl font-extrabold">${Number(pendingRide.price).toFixed(2)}</span>
+          <span className="text-2xl font-extrabold">{fmtKsh(pendingRide.price)}</span>
         </div>
         <p className="text-xs text-gray-400 mb-4">
           You will be redirected to a secure Paystack checkout (card or mobile
@@ -162,7 +163,7 @@ export default function RideOptions({ onConfirmed }) {
             </>
           ) : (
             <>
-              <FaCreditCard /> Pay ${Number(pendingRide.price).toFixed(2)}
+              <FaCreditCard /> Pay {fmtKsh(pendingRide.price)}
             </>
           )}
         </button>
@@ -248,10 +249,13 @@ export default function RideOptions({ onConfirmed }) {
           </div>
           {payMethod === 'cash' && (
             <p className="mt-2 text-xs text-gray-400 text-center">
-              Pay the driver in cash. A commission deposit will be tracked on
-              the driver&apos;s account.
+              Pay the rider in cash. A commission deposit will be tracked on
+              the rider&apos;s account.
             </p>
           )}
+          <p className="mt-2 text-xs text-amber-600 text-center">
+            Fares ×2 between 10:30 PM and 4:30 AM
+          </p>
 
           <button
             onClick={handleConfirm}

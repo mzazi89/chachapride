@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import pool from '../../../lib/db';
 import { guardRole } from '../../../lib/guard';
 import { getActiveRideTypes, getRideType } from '../../../lib/ride-types';
-import { haversineKm, estimatePrice, commissionFor } from '../../../lib/pricing';
+import { haversineKm, finalFare, commissionFor } from '../../../lib/pricing';
 import { dispatchRide } from '../../../lib/dispatch';
 
 export async function GET(request) {
@@ -20,7 +20,7 @@ export async function GET(request) {
     );
     const rideTypes = (await getActiveRideTypes()).map((t) => ({
       ...t,
-      price: estimatePrice(t, km),
+      price: finalFare(t, km),
     }));
 
     const { rows } = await pool.query(
@@ -65,7 +65,7 @@ export async function POST(request) {
   const destinationLng = toNum(body.destinationLng);
 
   const km = haversineKm(pickupLat, pickupLng, destinationLat, destinationLng);
-  const price = estimatePrice(rideType, km);
+  const price = finalFare(rideType, km);
   const commission = commissionFor(price);
   const status = paymentMethod === 'cash' ? 'requested' : 'payment_pending';
 
