@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { FaUser, FaBars, FaSpinner } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 import InstallBanner from './InstallBanner';
+import InstallAppButton from './InstallAppButton';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -49,6 +50,7 @@ export default function Header() {
                 >
                   Hi, {user.name.split(' ')[0]}
                 </Link>
+                <InstallAppButton />
                 <button
                   onClick={handleLogout}
                   className="px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 transition text-sm font-medium"
