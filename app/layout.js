@@ -2,12 +2,20 @@ import './globals.css'
 import { RideProvider } from './context/RideContext'
 import { AuthProvider } from './context/AuthContext'
 import Footer from './components/Footer'
+import RegisterSW from './components/RegisterSW'
 
 export const metadata = {
   title: 'chachapride - Go anywhere',
   description: 'Safe, affordable ride-hailing in Kenya — book, pay, and track your driver in real time.',
+  applicationName: 'chachapride',
+  appleWebApp: {
+    capable: true,
+    title: 'chachapride',
+    statusBarStyle: 'default',
+  },
   icons: {
     icon: '/favicon.ico',
+    apple: '/icons/icon-192.png',
   },
   openGraph: {
     title: 'chachapride - Go anywhere',
@@ -27,6 +35,7 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body className="font-sans antialiased bg-gray-50 flex flex-col min-h-screen">
+        <RegisterSW />
         <AuthProvider>
           <RideProvider>
             <div className="flex-1">

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { FaUser, FaBars, FaSpinner } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
+import InstallBanner from './InstallBanner';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -127,6 +128,7 @@ export default function Header() {
           </div>
         )}
       </div>
+      <InstallBanner />
     </header>
   );
 }
