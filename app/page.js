@@ -89,23 +89,36 @@ export default function Home() {
     <div className="min-h-screen">
       <Header />
 
+      {/* Hero with background photo */}
+      <section className="relative">
+        <img
+          src="/images/hero-rider.png"
+          alt="Boda boda rider at dusk"
+          className="h-[340px] sm:h-[420px] w-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-950/90 via-blue-900/50 to-emerald-900/25" />
+        <div className="absolute inset-0 bg-gradient-to-t from-gray-50 via-transparent to-transparent" />
+        <div className="absolute inset-0 flex flex-col justify-center max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h1 className="text-4xl sm:text-6xl font-black gradient-text max-w-2xl leading-tight">
+            Go anywhere in Kenya
+          </h1>
+          <p className="mt-3 text-white/85 text-base sm:text-lg max-w-md font-medium">
+            Boda boda rides with fair KSh fares, live tracking, and a 24/7
+            emergency line.
+          </p>
+        </div>
+      </section>
+
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {user && !activeRideId && <LocationBanner />}
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 -mt-24 relative z-10">
           {/* Left Column - Booking Form or Trip Tracker */}
           <div className="space-y-6">
             {activeRideId ? (
               <TripTracker rideId={activeRideId} onEnded={handleRideEnded} />
             ) : (
-              <div className="uber-card animate-slide-up">
-                <h1 className="text-3xl sm:text-4xl font-extrabold mb-2 gradient-text">
-                  Go anywhere
-                </h1>
-                <p className="text-gray-500 mb-6">
-                  Get affordable rides at your fingertips
-                </p>
-
+              <div className="uber-card animate-slide-up !p-6 sm:!p-8">
                 {requestError && (
                   <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm">
                     {requestError}

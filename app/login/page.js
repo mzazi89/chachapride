@@ -44,9 +44,27 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
-      <div className="w-full max-w-md">
-        <div className="uber-card">
+    <div className="min-h-screen flex">
+      <div className="hidden lg:block w-1/2 relative">
+        <img
+          src="/images/hero-rider.png"
+          alt="Boda boda ride"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-950/80 via-blue-900/40 to-emerald-900/40" />
+        <div className="absolute inset-0 flex flex-col justify-end p-12">
+          <h2 className="text-4xl font-black gradient-text mb-2">chachapride</h2>
+          <p className="text-white/85 max-w-sm">
+            Fair KSh fares, live tracking, safe verified riders.
+          </p>
+        </div>
+      </div>
+      <div className="flex-1 flex items-center justify-center px-4 py-10">
+        <div className="w-full max-w-md">
+          <div className="lg:hidden mb-6 text-center">
+            <h2 className="text-3xl font-black gradient-text">chachapride</h2>
+          </div>
+          <div className="uber-card">
           <h1 className="text-3xl font-extrabold mb-1">Welcome back</h1>
           <p className="text-gray-500 mb-6">Log in to request a ride</p>
 
@@ -104,6 +122,7 @@ export default function LoginPage() {
             </Link>
           </p>
         </div>
+      </div>
       </div>
     </div>
   );
