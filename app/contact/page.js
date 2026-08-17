@@ -93,7 +93,7 @@ export default function ContactPage() {
             )}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="flex items-center gap-3 bg-gray-100 rounded-xl p-4 focus-within:bg-white focus-within:ring-2 focus-within:ring-black">
+              <div className="flex items-center gap-3 bg-gray-100 rounded-xl p-4 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-500">
                 <input
                   type="text"
                   value={form.name}
@@ -104,7 +104,7 @@ export default function ContactPage() {
                   className="bg-transparent w-full outline-none text-gray-700 placeholder-gray-400"
                 />
               </div>
-              <div className="flex items-center gap-3 bg-gray-100 rounded-xl p-4 focus-within:bg-white focus-within:ring-2 focus-within:ring-black">
+              <div className="flex items-center gap-3 bg-gray-100 rounded-xl p-4 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-500">
                 <input
                   type="email"
                   value={form.email}
@@ -123,7 +123,7 @@ export default function ContactPage() {
               required
               minLength={10}
               rows={5}
-              className="w-full bg-gray-100 rounded-xl p-4 outline-none text-gray-700 placeholder-gray-400 focus:bg-white focus:ring-2 focus:ring-black resize-none"
+              className="w-full bg-gray-100 rounded-xl p-4 outline-none text-gray-700 placeholder-gray-400 focus:bg-white focus:ring-2 focus:ring-blue-500 resize-none"
             />
 
             <button

@@ -67,7 +67,7 @@ export default function LocationInput({ type, value, onChange, placeholder }) {
 
   return (
     <div className="relative">
-      <div className="flex items-center gap-3 bg-gray-100 hover:bg-gray-200 rounded-xl p-4 transition-all duration-200 focus-within:bg-white focus-within:ring-2 focus-within:ring-black">
+      <div className="flex items-center gap-3 bg-gray-100 hover:bg-gray-200 rounded-xl p-4 transition-all duration-200 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-500">
         <FaMapMarkerAlt
           className={`text-xl shrink-0 ${isPickup ? 'text-green-500' : 'text-red-500'}`}
         />

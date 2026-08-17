@@ -135,7 +135,7 @@ export default function ProfilePage() {
           )}
 
           <form onSubmit={handleSave} className="space-y-4">
-            <div className="flex items-center gap-3 bg-gray-100 rounded-xl p-4 focus-within:bg-white focus-within:ring-2 focus-within:ring-black">
+            <div className="flex items-center gap-3 bg-gray-100 rounded-xl p-4 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-500">
               <FaUser className="text-gray-400" />
               <input
                 type="text"
@@ -158,7 +158,7 @@ export default function ProfilePage() {
               />
             </div>
 
-            <div className="flex items-center gap-3 bg-gray-100 rounded-xl p-4 focus-within:bg-white focus-within:ring-2 focus-within:ring-black">
+            <div className="flex items-center gap-3 bg-gray-100 rounded-xl p-4 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-500">
               <FaPhone className="text-gray-400" />
               <input
                 type="tel"

@@ -102,9 +102,9 @@ export default function LocationBanner() {
   if (!visible) return null;
 
   return (
-    <div className="mb-6 rounded-2xl border border-blue-200 bg-blue-50 p-4 flex flex-col sm:flex-row sm:items-center gap-3">
+    <div className="mb-6 rounded-2xl border border-violet-200 bg-violet-50 p-4 flex flex-col sm:flex-row sm:items-center gap-3">
       <div className="flex items-center gap-3 flex-1">
-        <FaMapMarkerAlt className="text-blue-600 text-xl shrink-0" />
+        <FaMapMarkerAlt className="text-violet-600 text-xl shrink-0" />
         <div>
           <p className="font-semibold text-gray-800 text-sm sm:text-base">
             {denied ? 'Location is turned off' : 'Enable location for faster pickups'}
@@ -121,14 +121,14 @@ export default function LocationBanner() {
       {!userLocation && (
         <button
           onClick={enableLocation}
-          className="shrink-0 px-4 py-2 rounded-full bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition"
+          className="shrink-0 px-4 py-2 rounded-full bg-violet-600 text-white text-sm font-semibold hover:bg-violet-700 transition"
         >
           Turn on location
         </button>
       )}
       <button
         onClick={dismiss}
-        className="shrink-0 p-2 rounded-full text-gray-400 hover:text-gray-600 hover:bg-blue-100 transition"
+        className="shrink-0 p-2 rounded-full text-gray-400 hover:text-gray-600 hover:bg-violet-100 transition"
         aria-label="Dismiss"
       >
         <FaTimes />

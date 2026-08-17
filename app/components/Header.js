@@ -21,7 +21,7 @@ export default function Header() {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center">
-            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-black">
+            <h1 className="text-2xl sm:text-3xl font-black tracking-tight gradient-text">
               chachapride
             </h1>
           </Link>
@@ -65,7 +65,7 @@ export default function Header() {
                 </Link>
                 <Link
                   href="/signup"
-                  className="flex items-center gap-2 px-4 py-2 rounded-full bg-black text-white hover:bg-gray-800 transition"
+                  className="flex items-center gap-2 px-4 py-2 rounded-full text-white transition bg-gradient-to-r from-blue-600 to-green-500 hover:brightness-110"
                 >
                   <FaUser className="text-sm" />
                   <span className="text-sm font-medium">Sign up</span>
@@ -116,7 +116,7 @@ export default function Header() {
                   </Link>
                   <Link
                     href="/signup"
-                    className="flex items-center justify-center gap-2 px-4 py-2 rounded-full bg-black text-white"
+                    className="flex items-center justify-center gap-2 px-4 py-2 rounded-full text-white bg-gradient-to-r from-blue-600 to-green-500"
                   >
                     <FaUser className="text-sm" />
                     <span className="text-sm font-medium">Sign up</span>

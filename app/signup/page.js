@@ -58,7 +58,7 @@ export default function SignupPage() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="flex items-center gap-3 bg-gray-100 rounded-xl p-4 focus-within:bg-white focus-within:ring-2 focus-within:ring-black">
+            <div className="flex items-center gap-3 bg-gray-100 rounded-xl p-4 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-500">
               <FaUser className="text-gray-400" />
               <input
                 type="text"
@@ -71,7 +71,7 @@ export default function SignupPage() {
               />
             </div>
 
-            <div className="flex items-center gap-3 bg-gray-100 rounded-xl p-4 focus-within:bg-white focus-within:ring-2 focus-within:ring-black">
+            <div className="flex items-center gap-3 bg-gray-100 rounded-xl p-4 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-500">
               <FaEnvelope className="text-gray-400" />
               <input
                 type="email"
@@ -83,7 +83,7 @@ export default function SignupPage() {
               />
             </div>
 
-            <div className="flex items-center gap-3 bg-gray-100 rounded-xl p-4 focus-within:bg-white focus-within:ring-2 focus-within:ring-black">
+            <div className="flex items-center gap-3 bg-gray-100 rounded-xl p-4 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-500">
               <FaLock className="text-gray-400" />
               <input
                 type="password"

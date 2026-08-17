@@ -230,7 +230,7 @@ export default function RideOptions({ onConfirmed }) {
               onClick={() => setPayMethod('online')}
               className={`py-3 rounded-2xl border-2 text-sm font-semibold flex items-center justify-center gap-2 transition ${
                 payMethod === 'online'
-                  ? 'border-black bg-black text-white'
+                  ? 'border-blue-600 bg-gradient-to-r from-blue-600 to-green-500 text-white'
                   : 'border-gray-200 text-gray-500 hover:border-gray-300'
               }`}
             >

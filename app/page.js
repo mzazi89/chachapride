@@ -99,7 +99,7 @@ export default function Home() {
               <TripTracker rideId={activeRideId} onEnded={handleRideEnded} />
             ) : (
               <div className="uber-card animate-slide-up">
-                <h1 className="text-3xl sm:text-4xl font-extrabold mb-2">
+                <h1 className="text-3xl sm:text-4xl font-extrabold mb-2 gradient-text">
                   Go anywhere
                 </h1>
                 <p className="text-gray-500 mb-6">

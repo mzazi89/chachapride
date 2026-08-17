@@ -142,7 +142,7 @@ function LayerControl({ layer, onSelect }) {
           onClick={() => onSelect(key)}
           className={
             layer === key
-              ? 'px-3 py-1.5 font-semibold bg-gray-900 text-white'
+              ? 'px-3 py-1.5 font-semibold text-white bg-gradient-to-r from-blue-600 to-green-500'
               : 'px-3 py-1.5 text-gray-600 hover:bg-gray-100 transition'
           }
         >

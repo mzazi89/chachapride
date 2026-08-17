@@ -12,7 +12,7 @@ export default function Error({ reset }) {
         </p>
         <button
           onClick={reset}
-          className="px-8 py-3 rounded-full bg-black text-white font-semibold hover:bg-gray-800 transition"
+          className="px-8 py-3 rounded-full text-white font-semibold transition bg-gradient-to-r from-blue-600 to-green-500 hover:brightness-110"
         >
           Try again
         </button>

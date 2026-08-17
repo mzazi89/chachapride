@@ -106,11 +106,11 @@ export default function TripTracker({ rideId, onEnded }) {
       <div className="uber-card p-6">
         <div className="flex items-center gap-3 mb-4">
           {track.status === 'requested' ? (
-            <FaSpinner className="animate-spin text-2xl text-blue-600" />
+            <FaSpinner className="animate-spin text-2xl text-violet-500" />
           ) : track.status === 'completed' ? (
             <FaCheckCircle className="text-2xl text-green-500" />
           ) : (
-            <FaCarSide className="text-2xl text-blue-600" />
+            <FaCarSide className="text-2xl text-green-600" />
           )}
           <div>
             <h3 className="text-xl font-bold">{STATUS_TEXT[track.status] || track.status}</h3>
@@ -134,7 +134,7 @@ export default function TripTracker({ rideId, onEnded }) {
             <button
               onClick={handlePay}
               disabled={paying}
-              className="w-full py-3 rounded-full bg-black text-white font-semibold hover:bg-gray-800 transition flex items-center justify-center gap-2"
+              className="w-full py-3 rounded-full text-white font-semibold transition bg-gradient-to-r from-blue-600 to-green-500 hover:brightness-110 flex items-center justify-center gap-2"
             >
               {paying ? (
                 <>
@@ -149,7 +149,7 @@ export default function TripTracker({ rideId, onEnded }) {
 
         {track.driver && (
           <div className="flex items-center gap-4 bg-gray-50 rounded-xl p-4 mb-4">
-            <div className="w-12 h-12 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-lg">
+            <div className="w-12 h-12 rounded-full text-white flex items-center justify-center font-bold text-lg bg-gradient-to-br from-blue-600 to-green-500">
               {track.driver.name.charAt(0)}
             </div>
             <div className="flex-1">
@@ -219,7 +219,7 @@ export default function TripTracker({ rideId, onEnded }) {
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <button
               onClick={onEnded}
-              className="px-6 py-3 rounded-full bg-black text-white font-semibold hover:bg-gray-800 transition"
+              className="px-6 py-3 rounded-full text-white font-semibold transition bg-gradient-to-r from-blue-600 to-green-500 hover:brightness-110"
             >
               Book another ride
             </button>
